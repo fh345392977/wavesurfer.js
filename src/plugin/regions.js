@@ -12,7 +12,7 @@ class Region {
         this.wrapper = ws.drawer.wrapper;
         this.util = ws.util;
         this.style = this.util.style;
-
+        this.type = params.type ? params.type : 'empty';
         this.id = params.id == null ? ws.util.getId() : params.id;
         this.start = Number(params.start) || 0;
         this.end =
@@ -123,6 +123,7 @@ class Region {
         regionEl.className = 'wavesurfer-region';
         regionEl.title = this.formatTime(this.start, this.end);
         regionEl.setAttribute('data-id', this.id);
+        regionEl.setAttribute('data-type', this.type);
 
         for (const attrname in this.attributes) {
             regionEl.setAttribute(
