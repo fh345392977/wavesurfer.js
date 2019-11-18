@@ -12,8 +12,8 @@ class Region {
         this.wrapper = ws.drawer.wrapper;
         this.util = ws.util;
         this.style = this.util.style;
-        this.type = params.type ? params.type : 'empty';
         this.id = params.id == null ? ws.util.getId() : params.id;
+        this.zIndex = params.zIndex || 3;
         this.start = Number(params.start) || 0;
         this.end =
             params.end == null
@@ -79,6 +79,12 @@ class Region {
         if (null != params.attributes) {
             this.attributes = params.attributes;
         }
+        if (null != params.zIndex) {
+            this.zIndex = params.zIndex;
+        }
+        if (null != params.id) {
+            this.id = params.id;
+        }
 
         this.updateRender();
         this.fireEvent('update');
@@ -123,7 +129,6 @@ class Region {
         regionEl.className = 'wavesurfer-region';
         regionEl.title = this.formatTime(this.start, this.end);
         regionEl.setAttribute('data-id', this.id);
-        regionEl.setAttribute('data-type', this.type);
 
         for (const attrname in this.attributes) {
             regionEl.setAttribute(
@@ -134,7 +139,7 @@ class Region {
 
         this.style(regionEl, {
             position: 'absolute',
-            zIndex: 2,
+            zIndex: this.zIndex,
             height: '100%',
             top: '0px'
         });
@@ -220,6 +225,7 @@ class Region {
 
             this.style(this.element, {
                 left: left + 'px',
+                zIndex: this.zIndex,
                 width: regionWidth + 'px',
                 backgroundColor: this.color,
                 cursor: this.drag ? 'move' : 'default'
@@ -233,6 +239,7 @@ class Region {
             }
 
             this.element.title = this.formatTime(this.start, this.end);
+            this.element.setAttribute('data-id', this.id);
         }
     }
 

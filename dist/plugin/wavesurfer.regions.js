@@ -142,8 +142,8 @@ function () {
     this.wrapper = ws.drawer.wrapper;
     this.util = ws.util;
     this.style = this.util.style;
-    this.type = params.type ? params.type : 'empty';
     this.id = params.id == null ? ws.util.getId() : params.id;
+    this.zIndex = params.zIndex || 3;
     this.start = Number(params.start) || 0;
     this.end = params.end == null ? // small marker-like region
     this.start + 4 / this.wrapper.scrollWidth * this.wavesurfer.getDuration() : Number(params.end);
@@ -218,6 +218,14 @@ function () {
         this.attributes = params.attributes;
       }
 
+      if (null != params.zIndex) {
+        this.zIndex = params.zIndex;
+      }
+
+      if (null != params.id) {
+        this.id = params.id;
+      }
+
       this.updateRender();
       this.fireEvent('update');
       this.wavesurfer.fireEvent('region-updated', this);
@@ -273,7 +281,6 @@ function () {
       regionEl.className = 'wavesurfer-region';
       regionEl.title = this.formatTime(this.start, this.end);
       regionEl.setAttribute('data-id', this.id);
-      regionEl.setAttribute('data-type', this.type);
 
       for (var attrname in this.attributes) {
         regionEl.setAttribute('data-region-' + attrname, this.attributes[attrname]);
@@ -281,7 +288,7 @@ function () {
 
       this.style(regionEl, {
         position: 'absolute',
-        zIndex: 2,
+        zIndex: this.zIndex,
         height: '100%',
         top: '0px'
       });
@@ -364,6 +371,7 @@ function () {
         var regionWidth = Math.round(endLimited / dur * width) - left;
         this.style(this.element, {
           left: left + 'px',
+          zIndex: this.zIndex,
           width: regionWidth + 'px',
           backgroundColor: this.color,
           cursor: this.drag ? 'move' : 'default'
@@ -374,6 +382,7 @@ function () {
         }
 
         this.element.title = this.formatTime(this.start, this.end);
+        this.element.setAttribute('data-id', this.id);
       }
     }
     /* Bind audio events. */

@@ -86,7 +86,6 @@
     "karma-webpack": "^4.0.2",
     "lint-staged": "^9.4.2",
     "load-script": "^1.0.0",
-    "pre-commit": "^1.2.2",
     "prettier": "^1.19.1",
     "terser-webpack-plugin": "^2.2.1",
     "webpack": "^4.41.2",
@@ -95,7 +94,6 @@
     "webpack-merge": "^4.2.2"
   },
   "homepage": "https://github.com/katspaugh/wavesurfer.js",
-  "pre-commit": "lint-and-format-staged",
   "lint-staged": {
     "*.js": [
       "prettier",
