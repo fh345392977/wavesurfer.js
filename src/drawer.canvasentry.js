@@ -84,8 +84,8 @@ export default class CanvasEntry {
     /**
      * Update the dimensions
      *
-     * @param {number} elementWidth
-     * @param {number} totalWidth
+     * @param {number} elementWidth Width of the entry
+     * @param {number} totalWidth Total width of the multi canvas renderer
      * @param {number} width The new width of the element
      * @param {number} height The new height of the element
      */
@@ -153,12 +153,20 @@ export default class CanvasEntry {
      * @param {number} y Y start position
      * @param {number} width Width of the rectangle
      * @param {number} height Height of the rectangle
+     * @param {number} radius Radius of the rectangle
      */
-    fillRects(x, y, width, height) {
-        this.fillRectToContext(this.waveCtx);
+    fillRects(x, y, width, height, radius) {
+        this.fillRectToContext(this.waveCtx, x, y, width, height, radius);
 
         if (this.hasProgressCanvas) {
-            this.fillRectToContext(this.progressCtx);
+            this.fillRectToContext(
+                this.progressCtx,
+                x,
+                y,
+                width,
+                height,
+                radius
+            );
         }
     }
 
@@ -171,12 +179,61 @@ export default class CanvasEntry {
      * @param {number} y Y start position
      * @param {number} width Width of the rectangle
      * @param {number} height Height of the rectangle
+     * @param {number} radius Radius of the rectangle
      */
-    fillRectToContext(ctx, x, y, width, height) {
+    fillRectToContext(ctx, x, y, width, height, radius) {
         if (!ctx) {
             return;
         }
-        ctx.fillRect(x, y, width, height);
+
+        if (radius) {
+            this.drawRoundedRect(ctx, x, y, width, height, radius);
+        } else {
+            ctx.fillRect(x, y, width, height);
+        }
+    }
+
+    /**
+     * Draw a rounded rectangle on Canvas
+     *
+     * @private
+     * @param {CanvasRenderingContext2D} ctx Canvas context
+     * @param {number} x X-position of the rectangle
+     * @param {number} y Y-position of the rectangle
+     * @param {number} width Width of the rectangle
+     * @param {number} height Height of the rectangle
+     * @param {number} radius Radius of the rectangle
+     *
+     * @return {void}
+     * @example drawRoundedRect(ctx, 50, 50, 5, 10, 3)
+     */
+    drawRoundedRect(ctx, x, y, width, height, radius) {
+        if (height === 0) {
+            return;
+        }
+        // peaks are float values from -1 to 1. Use absolute height values in
+        // order to correctly calculate rounded rectangle coordinates
+        if (height < 0) {
+            height *= -1;
+            y -= height;
+        }
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(
+            x + width,
+            y + height,
+            x + width - radius,
+            y + height
+        );
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+        ctx.fill();
     }
 
     /**

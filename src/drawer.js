@@ -123,7 +123,7 @@ export default class Drawer extends util.Observer {
         this.wrapper.addEventListener('click', e => {
             const scrollbarHeight =
                 this.wrapper.offsetHeight - this.wrapper.clientHeight;
-            if (scrollbarHeight != 0) {
+            if (scrollbarHeight !== 0) {
                 // scrollbar is visible.  Check if click was on it
                 const bbox = this.wrapper.getBoundingClientRect();
                 if (e.clientY >= bbox.bottom - scrollbarHeight) {
@@ -137,6 +137,12 @@ export default class Drawer extends util.Observer {
             }
         });
 
+        this.wrapper.addEventListener('dblclick', e => {
+            if (this.params.interact) {
+                this.fireEvent('dblclick', e, this.handleEvent(e));
+            }
+        });
+
         this.wrapper.addEventListener('scroll', e =>
             this.fireEvent('scroll', e)
         );
@@ -145,8 +151,8 @@ export default class Drawer extends util.Observer {
     /**
      * Draw peaks on the canvas
      *
-     * @param {number[]|number[][]} peaks Can also be an array of arrays for split channel
-     * rendering
+     * @param {number[]|Number.<Array[]>} peaks Can also be an array of arrays
+     * for split channel rendering
      * @param {number} length The width of the area that should be drawn
      * @param {number} start The x-offset of the beginning of the area that
      * should be rendered
@@ -203,8 +209,13 @@ export default class Drawer extends util.Observer {
 
         // if the cursor is currently visible...
         if (!immediate && -half <= offset && offset < half) {
-            // we'll limit the "re-center" rate.
-            const rate = 5;
+            // set rate at which waveform is centered
+            let rate = this.params.autoCenterRate;
+
+            // make rate depend on width of view and length of waveform
+            rate /= half;
+            rate *= maxScroll;
+
             offset = Math.max(-rate, Math.min(rate, offset));
             target = scrollLeft + offset;
         }
@@ -220,7 +231,7 @@ export default class Drawer extends util.Observer {
     /**
      * Get the current scroll position in pixels
      *
-     * @return {number}
+     * @return {number} Horizontal scroll position in pixels
      */
     getScrollX() {
         let x = 0;
@@ -247,7 +258,7 @@ export default class Drawer extends util.Observer {
     /**
      * Get the width of the container
      *
-     * @return {number}
+     * @return {number} The width of the container
      */
     getWidth() {
         return Math.round(this.container.clientWidth * this.params.pixelRatio);
@@ -256,7 +267,8 @@ export default class Drawer extends util.Observer {
     /**
      * Set the width of the container
      *
-     * @param {number} width
+     * @param {number} width The new width of the container
+     * @return {boolean} Whether the width of the container was updated or not
      */
     setWidth(width) {
         if (this.width == width) {
@@ -282,7 +294,8 @@ export default class Drawer extends util.Observer {
     /**
      * Set the height of the container
      *
-     * @param {number} height
+     * @param {number} height The new height of the container.
+     * @return {boolean} Whether the height of the container was updated or not
      */
     setHeight(height) {
         if (height == this.height) {
@@ -312,7 +325,10 @@ export default class Drawer extends util.Observer {
 
             if (this.params.scrollParent && this.params.autoCenter) {
                 const newPos = ~~(this.wrapper.scrollWidth * progress);
-                this.recenterOnPosition(newPos);
+                this.recenterOnPosition(
+                    newPos,
+                    this.params.autoCenterImmediately
+                );
             }
 
             this.updateProgress(pos);
@@ -352,7 +368,7 @@ export default class Drawer extends util.Observer {
      * Draw a waveform with bars
      *
      * @abstract
-     * @param {number[]|number[][]} peaks Can also be an array of arrays for split channel
+     * @param {number[]|Number.<Array[]>} peaks Can also be an array of arrays for split channel
      * rendering
      * @param {number} channelIndex The index of the current channel. Normally
      * should be 0
@@ -367,7 +383,7 @@ export default class Drawer extends util.Observer {
      * Draw a waveform
      *
      * @abstract
-     * @param {number[]|number[][]} peaks Can also be an array of arrays for split channel
+     * @param {number[]|Number.<Array[]>} peaks Can also be an array of arrays for split channel
      * rendering
      * @param {number} channelIndex The index of the current channel. Normally
      * should be 0
